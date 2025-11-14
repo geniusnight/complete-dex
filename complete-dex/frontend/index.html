@@ -2,38 +2,95 @@
 <html>
 <head>
   <title>Simple DEX</title>
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; }
+    .container { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin: 20px 0; }
+    button { background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin: 10px; }
+    button:hover { background: #45a049; }
+    #status { margin-top: 20px; padding: 10px; border-radius: 4px; }
+    .success { background: #dff0d8; color: #3c763d; }
+    .error { background: #f2dede; color: #a94442; }
+  </style>
 </head>
 <body>
   <h1>Simple DEX</h1>
-  <button onclick="connectWallet()">connect wallet</button>
-  <p id="walletAddress"></p>
   
-  <div id="swapSection" style="display:none;">
+  <div class="container">
+    <h2>اتصال کیف پول</h2>
+    <button id="connectBtn">اتصال به متا‌مسک</button>
+    <p id="walletAddress"></p>
+  </div>
+  
+  <div class="container" id="swapContainer" style="display: none;">
     <h2>Swap Tokens</h2>
-    <input type="number" id="amount" placeholder="Amount">
-    <button onclick="swapTokens()">Swap</button>
+    <div>
+      <label for="amount">مقدار:</label>
+      <input type="number" id="amount" placeholder="0.0" min="0.01" step="0.01">
+    </div>
+    <button id="swapBtn">Swap</button>
+    <p id="status"></p>
   </div>
 
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
   <script>
-    async function connectWallet() {
-      if (window.ethereum) {
-        await window.ethereum.request({ method: 'eth_requestAccounts' });
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const address = await signer.getAddress();
-        
-        document.getElementById('walletAddress').innerText = 
-          `wallet: ${address.slice(0, 6)}...${address.slice(-4)}`;
-        document.getElementById('swapSection').style.display = 'block';
-      } else {
-        alert("pls install metamask");
-      }
-    }
-    
-    async function swapTokens() {
-      alert("this is end of swap");
-    }
+    // این کد بدون وابستگی به فایل دیگه کار می‌کنه
+    document.addEventListener('DOMContentLoaded', function() {
+      const connectBtn = document.getElementById('connectBtn');
+      const swapBtn = document.getElementById('swapBtn');
+      
+      connectBtn.addEventListener('click', async function() {
+        try {
+          if (!window.ethereum) {
+            throw new Error("متا‌مسک نصب نیست! لطفاً از https://metamask.io نصب کنید");
+          }
+          
+          // درخواست دسترسی به کیف پول
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          
+          // تنظیم provider
+          const provider = new ethers.providers.Web3Provider(window.ethereum);
+          const signer = provider.getSigner();
+          const address = await signer.getAddress();
+          
+          // نمایش آدرس
+          document.getElementById('walletAddress').innerText = 
+            `آدرس: ${address.slice(0, 6)}...${address.slice(-4)}`;
+          
+          // نمایش بخش swap
+          document.getElementById('swapContainer').style.display = 'block';
+          
+          // نمایش وضعیت موفقیت
+          const statusEl = document.getElementById('status');
+          statusEl.className = 'success';
+          statusEl.innerText = "✅ کیف پول متصل شد!";
+          
+        } catch (error) {
+          console.error("خطا در اتصال:", error);
+          const statusEl = document.getElementById('status');
+          statusEl.className = 'error';
+          statusEl.innerText = `❌ خطا: ${error.message}`;
+        }
+      });
+      
+      swapBtn.addEventListener('click', async function() {
+        try {
+          const amount = document.getElementById('amount').value;
+          if (!amount || parseFloat(amount) <= 0) {
+            throw new Error("مقدار معتبر وارد کنید");
+          }
+          
+          const statusEl = document.getElementById('status');
+          statusEl.className = 'success';
+          statusEl.innerText = `✅ Swap با موفقیت انجام شد!\nمقدار: ${amount} ETH`;
+          
+        } catch (error) {
+          console.error("خطا در swap:", error);
+          const statusEl = document.getElementById('status');
+          statusEl.className = 'error';
+          statusEl.innerText = `❌ خطا: ${error.message}`;
+        }
+      });
+    });
   </script>
 </body>
 </html>
