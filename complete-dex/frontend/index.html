@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Simple DEX</title>
+  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+</head>
+<body>
+  <h1>Simple DEX</h1>
+  <button onclick="connectWallet()">connect wallet</button>
+  <p id="walletAddress"></p>
+  
+  <div id="swapSection" style="display:none;">
+    <h2>Swap Tokens</h2>
+    <input type="number" id="amount" placeholder="Amount">
+    <button onclick="swapTokens()">Swap</button>
+  </div>
+
+  <script>
+    async function connectWallet() {
+      if (window.ethereum) {
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
+        
+        document.getElementById('walletAddress').innerText = 
+          `wallet: ${address.slice(0, 6)}...${address.slice(-4)}`;
+        document.getElementById('swapSection').style.display = 'block';
+      } else {
+        alert("pls install metamask");
+      }
+    }
+    
+    async function swapTokens() {
+      alert("this is end of swap");
+    }
+  </script>
+</body>
+</html>
