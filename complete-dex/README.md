@@ -1,13 +1,33 @@
-# Sample Hardhat Project
+# 💰 Simple DEX
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+![DEX Demo](https://img.shields.io/badge/Version-1.0-brightgreen)
 
-Try running some of the following tasks:
+created dex with solidity and hardhat
 
-```shell
-npx hardhat help
+## Features
+
+- اتصال به کیف پول متا‌مسک
+- قابلیت swap بین توکن‌ها
+- پشتیبانی از چندین ارز دیجیتال
+- تست‌های کامل با Mocha/Chai
+
+## 🛠️ install and run
+
+### requirements
+- Node.js v18 یا بالاتر
+- npm یا yarn
+
+### install steps
+```bash
+# clone project
+git clone https://github.com/geniusnight/complete-dex.git
+cd complete-dex
+
+# install dependency
+npm install
+
+# complie contract
+npx hardhat compile
+
+# run test
 npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
