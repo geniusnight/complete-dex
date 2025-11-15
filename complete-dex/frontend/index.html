@@ -1,96 +1,166 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Simple DEX</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; }
-    .container { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin: 20px 0; }
-    button { background: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin: 10px; }
-    button:hover { background: #45a049; }
-    #status { margin-top: 20px; padding: 10px; border-radius: 4px; }
-    .success { background: #dff0d8; color: #3c763d; }
-    .error { background: #f2dede; color: #a94442; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      margin: 20px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #4f46e5;
+    }
+    #walletAddress {
+      margin: 15px 0;
+      font-family: monospace;
+      word-break: break-all;
+      min-height: 24px;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 6px;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .error {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+    .connected {
+      background: #dbeafe;
+      color: #1e40af;
+    }
   </style>
 </head>
 <body>
-  <h1>Simple DEX</h1>
+  <h1>💱 Simple DEX</h1>
   
   <div class="container">
-    <h2>اتصال کیف پول</h2>
-    <button id="connectBtn">اتصال به متا‌مسک</button>
+    <h2>Connect wallet</h2>
+    <button id="connectBtn">Connect to wallet</button>
     <p id="walletAddress"></p>
+    <p id="status" class="status" style="display: none;"></p>
   </div>
   
-  <div class="container" id="swapContainer" style="display: none;">
+  <div class="container" id="swapSection" style="display: none;">
     <h2>Swap Tokens</h2>
-    <div>
-      <label for="amount">مقدار:</label>
-      <input type="number" id="amount" placeholder="0.0" min="0.01" step="0.01">
+    <div style="margin: 15px 0;">
+      <label for="amount">amount:</label>
+      <input type="number" id="amount" placeholder="0.0" min="0.01" step="0.01" style="padding: 8px; width: 120px; margin-right: 10px;">
+      <span>ETH</span>
     </div>
     <button id="swapBtn">Swap</button>
-    <p id="status"></p>
   </div>
 
   <script src="https://cdn.ethers.io/lib/ethers-5.7.umd.min.js"></script>
   <script>
-    // این کد بدون وابستگی به فایل دیگه کار می‌کنه
-    document.addEventListener('DOMContentLoaded', function() {
-      const connectBtn = document.getElementById('connectBtn');
-      const swapBtn = document.getElementById('swapBtn');
-      
-      connectBtn.addEventListener('click', async function() {
-        try {
-          if (!window.ethereum) {
-            throw new Error("متا‌مسک نصب نیست! لطفاً از https://metamask.io نصب کنید");
-          }
-          
-          // درخواست دسترسی به کیف پول
+    // DOM Elements
+    const connectBtn = document.getElementById('connectBtn');
+    const walletAddressEl = document.getElementById('walletAddress');
+    const statusEl = document.getElementById('status');
+    const swapSection = document.getElementById('swapSection');
+    const swapBtn = document.getElementById('swapBtn');
+
+    // Connect to MetaMask
+    connectBtn.addEventListener('click', async function() {
+      try {
+        if (window.ethereum) {
+  
           await window.ethereum.request({ method: 'eth_requestAccounts' });
           
-          // تنظیم provider
-          const provider = new ethers.providers.Web3Provider(window.ethereum);
-          const signer = provider.getSigner();
-          const address = await signer.getAddress();
-          
-          // نمایش آدرس
-          document.getElementById('walletAddress').innerText = 
-            `آدرس: ${address.slice(0, 6)}...${address.slice(-4)}`;
-          
-          // نمایش بخش swap
-          document.getElementById('swapContainer').style.display = 'block';
-          
-          // نمایش وضعیت موفقیت
-          const statusEl = document.getElementById('status');
-          statusEl.className = 'success';
-          statusEl.innerText = "✅ کیف پول متصل شد!";
-          
-        } catch (error) {
-          console.error("خطا در اتصال:", error);
-          const statusEl = document.getElementById('status');
-          statusEl.className = 'error';
-          statusEl.innerText = `❌ خطا: ${error.message}`;
-        }
-      });
-      
-      swapBtn.addEventListener('click', async function() {
-        try {
-          const amount = document.getElementById('amount').value;
-          if (!amount || parseFloat(amount) <= 0) {
-            throw new Error("مقدار معتبر وارد کنید");
           }
-          
-          const statusEl = document.getElementById('status');
-          statusEl.className = 'success';
-          statusEl.innerText = `✅ Swap با موفقیت انجام شد!\nمقدار: ${amount} ETH`;
-          
-        } catch (error) {
-          console.error("خطا در swap:", error);
-          const statusEl = document.getElementById('status');
-          statusEl.className = 'error';
-          statusEl.innerText = `❌ خطا: ${error.message}`;
+
+        // Check if Wallet is installed
+        if (!window.ethereum) {
+          showAlert('error', 'pls install wallet');
+          return;
         }
-      });
+
+        // Request account access
+        const accounts = await window.ethereum.request({ 
+          method: 'eth_requestAccounts' 
+        });
+        
+        // Get the first account
+        const account = accounts[0];
+        
+        // Show wallet address
+        walletAddressEl.textContent = `Adress: ${account.slice(0, 6)}...${account.slice(-4)}`;
+        
+        // Show status
+        showAlert('connected', '✅ wallet connected!');
+        
+        // Show swap section
+        swapSection.style.display = 'block';
+        
+      } catch (error) {
+        console.error("Error connecting wallet:", error);
+        if (error.code === 4001) {
+          showAlert('error', '❌user denied the connect.');
+        } else {
+          showAlert('error', `❌Error in connect: ${error.message}`);
+        }
+      }
     });
+
+    // Handle swap
+    swapBtn.addEventListener('click', function() {
+      const amount = document.getElementById('amount').value;
+      if (!amount || parseFloat(amount) <= 0) {
+        showAlert('error', 'Pls enter correct amount');
+        return;
+      }
+      
+      showAlert('success', `🔄 Swaping \Amount: ${amount} ETH`);
+      
+      // Simulate swap transaction (in real app, this would call your smart contract)
+      setTimeout(() => {
+        showAlert('success', `✅ Swaped with success!\Amount: ${amount} ETH`);
+      }, 1500);
+    });
+
+    // Helper function to show alerts
+    function showAlert(type, message) {
+      statusEl.className = `status ${type}`;
+      statusEl.textContent = message;
+      statusEl.style.display = 'block';
+      
+      // Auto-hide after 5 seconds for non-error messages
+      if (type !== 'error') {
+        setTimeout(() => {
+          statusEl.style.display = 'none';
+        }, 5000);
+      }
+    }
   </script>
 </body>
 </html>
